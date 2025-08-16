@@ -1,2 +1,4 @@
 # Bienvenido a nuestro Miniproyecto
 # Autores: María Clara Ávila Chinchia, David Alejandro Ibáñez Barrios y Mateo José Giraldo Castillo
+
+En este proyecto tenemos como objetivo desarrollar un modelo de clasificación supervisada para predecir el riesgo de incumplimiento en los préstamos de la plataforma Lending Club. Usaremos los modelos con las bibliotecas scikit-learn y PySpark, comparando su desempeño en términos de precisión, recall y otras. Y se usará el Local Interpretable Model-agnostic Explanations para interpretar las predicciones del modelo y ver qué factores influyen en la clasificación de los préstamos.
