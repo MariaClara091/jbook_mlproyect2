@@ -383,6 +383,933 @@ document.write(`
 Por ello, vamos a implementar modelos de regresión y clasificación supervisada, utilizando Ridge y Lasso, así como regresión logística. A través de un flujo completo con Pipeline y ajuste de hiperparámetros con GridSearchCV, se busca garantizar soluciones generalizables.</p>
 <p>Esto va a ser de gran ayuda pues para los compradores y vendedores tomar decisiones rápidas y acertadas resultan importantes para evaluar de manera precisa el valor de un automóvil y su potencial.
 Por ello, este proyecto tiene un impacto práctico en tal pues ofrece predicciones útiles para la toma de decisiones estratégicas.</p>
+<p>Para ello, iniciamos importando las librerias que necesitamos</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">seaborn</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">sns</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.impute</span><span class="w"> </span><span class="kn">import</span> <span class="n">SimpleImputer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">StandardScaler</span><span class="p">,</span> <span class="n">OneHotEncoder</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.ensemble</span><span class="w"> </span><span class="kn">import</span> <span class="n">RandomForestRegressor</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.compose</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColumnTransformer</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span><span class="p">,</span> <span class="n">cross_val_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.neighbors</span><span class="w"> </span><span class="kn">import</span> <span class="n">KNeighborsRegressor</span><span class="p">,</span> <span class="n">KNeighborsClassifier</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">classification_report</span><span class="p">,</span> <span class="n">confusion_matrix</span><span class="p">,</span> <span class="n">accuracy_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.decomposition</span><span class="w"> </span><span class="kn">import</span> <span class="n">PCA</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.metrics</span><span class="w"> </span><span class="kn">import</span> <span class="n">precision_score</span><span class="p">,</span> <span class="n">recall_score</span><span class="p">,</span> <span class="n">f1_score</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">UserWarning</span><span class="p">)</span>
+<span class="n">warnings</span><span class="o">.</span><span class="n">filterwarnings</span><span class="p">(</span><span class="s2">&quot;ignore&quot;</span><span class="p">,</span> <span class="n">category</span><span class="o">=</span><span class="ne">FutureWarning</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Leemos nuestro dataset sugerido</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="s1">&#39;vehicles.csv&#39;</span><span class="p">,</span> <span class="n">sep</span><span class="o">=</span><span class="s1">&#39;,&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>El tamaño de nuestro dataset:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Dimensiones:&quot;</span><span class="p">,</span> <span class="n">dataset</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Dimensiones: (426880, 26)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Revisamos las primeras 5 filas del dataset:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="o">.</span><span class="n">head</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>url</th>
+      <th>region</th>
+      <th>region_url</th>
+      <th>price</th>
+      <th>year</th>
+      <th>manufacturer</th>
+      <th>model</th>
+      <th>condition</th>
+      <th>cylinders</th>
+      <th>...</th>
+      <th>size</th>
+      <th>type</th>
+      <th>paint_color</th>
+      <th>image_url</th>
+      <th>description</th>
+      <th>county</th>
+      <th>state</th>
+      <th>lat</th>
+      <th>long</th>
+      <th>posting_date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>0</th>
+      <td>7222695916</td>
+      <td>https://prescott.craigslist.org/cto/d/prescott...</td>
+      <td>prescott</td>
+      <td>https://prescott.craigslist.org</td>
+      <td>6000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>az</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>1</th>
+      <td>7218891961</td>
+      <td>https://fayar.craigslist.org/ctd/d/bentonville...</td>
+      <td>fayetteville</td>
+      <td>https://fayar.craigslist.org</td>
+      <td>11900</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>ar</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>2</th>
+      <td>7221797935</td>
+      <td>https://keys.craigslist.org/cto/d/summerland-k...</td>
+      <td>florida keys</td>
+      <td>https://keys.craigslist.org</td>
+      <td>21000</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>fl</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>3</th>
+      <td>7222270760</td>
+      <td>https://worcester.craigslist.org/cto/d/west-br...</td>
+      <td>worcester / central MA</td>
+      <td>https://worcester.craigslist.org</td>
+      <td>1500</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>ma</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+    <tr>
+      <th>4</th>
+      <td>7210384030</td>
+      <td>https://greensboro.craigslist.org/cto/d/trinit...</td>
+      <td>greensboro</td>
+      <td>https://greensboro.craigslist.org</td>
+      <td>4900</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>nc</td>
+      <td>NaN</td>
+      <td>NaN</td>
+      <td>NaN</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 26 columns</p>
+</div></div></div>
+</div>
+<p>Las 5 últimas filas:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="o">.</span><span class="n">tail</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>url</th>
+      <th>region</th>
+      <th>region_url</th>
+      <th>price</th>
+      <th>year</th>
+      <th>manufacturer</th>
+      <th>model</th>
+      <th>condition</th>
+      <th>cylinders</th>
+      <th>...</th>
+      <th>size</th>
+      <th>type</th>
+      <th>paint_color</th>
+      <th>image_url</th>
+      <th>description</th>
+      <th>county</th>
+      <th>state</th>
+      <th>lat</th>
+      <th>long</th>
+      <th>posting_date</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>426875</th>
+      <td>7301591192</td>
+      <td>https://wyoming.craigslist.org/ctd/d/atlanta-2...</td>
+      <td>wyoming</td>
+      <td>https://wyoming.craigslist.org</td>
+      <td>23590</td>
+      <td>2019.0</td>
+      <td>nissan</td>
+      <td>maxima s sedan 4d</td>
+      <td>good</td>
+      <td>6 cylinders</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>sedan</td>
+      <td>NaN</td>
+      <td>https://images.craigslist.org/00o0o_iiraFnHg8q...</td>
+      <td>Carvana is the safer way to buy a car During t...</td>
+      <td>NaN</td>
+      <td>wy</td>
+      <td>33.786500</td>
+      <td>-84.445400</td>
+      <td>2021-04-04T03:21:31-0600</td>
+    </tr>
+    <tr>
+      <th>426876</th>
+      <td>7301591187</td>
+      <td>https://wyoming.craigslist.org/ctd/d/atlanta-2...</td>
+      <td>wyoming</td>
+      <td>https://wyoming.craigslist.org</td>
+      <td>30590</td>
+      <td>2020.0</td>
+      <td>volvo</td>
+      <td>s60 t5 momentum sedan 4d</td>
+      <td>good</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>sedan</td>
+      <td>red</td>
+      <td>https://images.craigslist.org/00x0x_15sbgnxCIS...</td>
+      <td>Carvana is the safer way to buy a car During t...</td>
+      <td>NaN</td>
+      <td>wy</td>
+      <td>33.786500</td>
+      <td>-84.445400</td>
+      <td>2021-04-04T03:21:29-0600</td>
+    </tr>
+    <tr>
+      <th>426877</th>
+      <td>7301591147</td>
+      <td>https://wyoming.craigslist.org/ctd/d/atlanta-2...</td>
+      <td>wyoming</td>
+      <td>https://wyoming.craigslist.org</td>
+      <td>34990</td>
+      <td>2020.0</td>
+      <td>cadillac</td>
+      <td>xt4 sport suv 4d</td>
+      <td>good</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>hatchback</td>
+      <td>white</td>
+      <td>https://images.craigslist.org/00L0L_farM7bxnxR...</td>
+      <td>Carvana is the safer way to buy a car During t...</td>
+      <td>NaN</td>
+      <td>wy</td>
+      <td>33.779214</td>
+      <td>-84.411811</td>
+      <td>2021-04-04T03:21:17-0600</td>
+    </tr>
+    <tr>
+      <th>426878</th>
+      <td>7301591140</td>
+      <td>https://wyoming.craigslist.org/ctd/d/atlanta-2...</td>
+      <td>wyoming</td>
+      <td>https://wyoming.craigslist.org</td>
+      <td>28990</td>
+      <td>2018.0</td>
+      <td>lexus</td>
+      <td>es 350 sedan 4d</td>
+      <td>good</td>
+      <td>6 cylinders</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>sedan</td>
+      <td>silver</td>
+      <td>https://images.craigslist.org/00z0z_bKnIVGLkDT...</td>
+      <td>Carvana is the safer way to buy a car During t...</td>
+      <td>NaN</td>
+      <td>wy</td>
+      <td>33.786500</td>
+      <td>-84.445400</td>
+      <td>2021-04-04T03:21:11-0600</td>
+    </tr>
+    <tr>
+      <th>426879</th>
+      <td>7301591129</td>
+      <td>https://wyoming.craigslist.org/ctd/d/atlanta-2...</td>
+      <td>wyoming</td>
+      <td>https://wyoming.craigslist.org</td>
+      <td>30590</td>
+      <td>2019.0</td>
+      <td>bmw</td>
+      <td>4 series 430i gran coupe</td>
+      <td>good</td>
+      <td>NaN</td>
+      <td>...</td>
+      <td>NaN</td>
+      <td>coupe</td>
+      <td>NaN</td>
+      <td>https://images.craigslist.org/00Y0Y_lEUocjyRxa...</td>
+      <td>Carvana is the safer way to buy a car During t...</td>
+      <td>NaN</td>
+      <td>wy</td>
+      <td>33.779214</td>
+      <td>-84.411811</td>
+      <td>2021-04-04T03:21:07-0600</td>
+    </tr>
+  </tbody>
+</table>
+<p>5 rows × 26 columns</p>
+</div></div></div>
+</div>
+<p>Vemos que siguen en orden la información. Ahora vemos la naturaleza de los datos:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+RangeIndex: 426880 entries, 0 to 426879
+Data columns (total 26 columns):
+ #   Column        Non-Null Count   Dtype  
+---  ------        --------------   -----  
+ 0   id            426880 non-null  int64  
+ 1   url           426880 non-null  object 
+ 2   region        426880 non-null  object 
+ 3   region_url    426880 non-null  object 
+ 4   price         426880 non-null  int64  
+ 5   year          425675 non-null  float64
+ 6   manufacturer  409234 non-null  object 
+ 7   model         421603 non-null  object 
+ 8   condition     252776 non-null  object 
+ 9   cylinders     249202 non-null  object 
+ 10  fuel          423867 non-null  object 
+ 11  odometer      422480 non-null  float64
+ 12  title_status  418638 non-null  object 
+ 13  transmission  424324 non-null  object 
+ 14  VIN           265838 non-null  object 
+ 15  drive         296313 non-null  object 
+ 16  size          120519 non-null  object 
+ 17  type          334022 non-null  object 
+ 18  paint_color   296677 non-null  object 
+ 19  image_url     426812 non-null  object 
+ 20  description   426810 non-null  object 
+ 21  county        0 non-null       float64
+ 22  state         426880 non-null  object 
+ 23  lat           420331 non-null  float64
+ 24  long          420331 non-null  float64
+ 25  posting_date  426812 non-null  object 
+dtypes: float64(5), int64(2), object(19)
+memory usage: 84.7+ MB
+</pre></div>
+</div>
+</div>
+</div>
+<p>Vemos que hay 7 variables numéricas y 19 variables categóricas. Aplicando esta función vemos que puede haber presencia de datos faltantes, por ello vamos a ver en qué variables se están presentando dichos faltantes.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>id</th>
+      <th>price</th>
+      <th>year</th>
+      <th>odometer</th>
+      <th>county</th>
+      <th>lat</th>
+      <th>long</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>count</th>
+      <td>4.268800e+05</td>
+      <td>4.268800e+05</td>
+      <td>425675.000000</td>
+      <td>4.224800e+05</td>
+      <td>0.0</td>
+      <td>420331.000000</td>
+      <td>420331.000000</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>7.311487e+09</td>
+      <td>7.519903e+04</td>
+      <td>2011.235191</td>
+      <td>9.804333e+04</td>
+      <td>NaN</td>
+      <td>38.493940</td>
+      <td>-94.748599</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>4.473170e+06</td>
+      <td>1.218228e+07</td>
+      <td>9.452120</td>
+      <td>2.138815e+05</td>
+      <td>NaN</td>
+      <td>5.841533</td>
+      <td>18.365462</td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>7.207408e+09</td>
+      <td>0.000000e+00</td>
+      <td>1900.000000</td>
+      <td>0.000000e+00</td>
+      <td>NaN</td>
+      <td>-84.122245</td>
+      <td>-159.827728</td>
+    </tr>
+    <tr>
+      <th>25%</th>
+      <td>7.308143e+09</td>
+      <td>5.900000e+03</td>
+      <td>2008.000000</td>
+      <td>3.770400e+04</td>
+      <td>NaN</td>
+      <td>34.601900</td>
+      <td>-111.939847</td>
+    </tr>
+    <tr>
+      <th>50%</th>
+      <td>7.312621e+09</td>
+      <td>1.395000e+04</td>
+      <td>2013.000000</td>
+      <td>8.554800e+04</td>
+      <td>NaN</td>
+      <td>39.150100</td>
+      <td>-88.432600</td>
+    </tr>
+    <tr>
+      <th>75%</th>
+      <td>7.315254e+09</td>
+      <td>2.648575e+04</td>
+      <td>2017.000000</td>
+      <td>1.335425e+05</td>
+      <td>NaN</td>
+      <td>42.398900</td>
+      <td>-80.832039</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>7.317101e+09</td>
+      <td>3.736929e+09</td>
+      <td>2022.000000</td>
+      <td>1.000000e+07</td>
+      <td>NaN</td>
+      <td>82.390818</td>
+      <td>173.885502</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>id                   0
+url                  0
+region               0
+region_url           0
+price                0
+year              1205
+manufacturer     17646
+model             5277
+condition       174104
+cylinders       177678
+fuel              3013
+odometer          4400
+title_status      8242
+transmission      2556
+VIN             161042
+drive           130567
+size            306361
+type             92858
+paint_color     130203
+image_url           68
+description         70
+county          426880
+state                0
+lat               6549
+long              6549
+posting_date        68
+dtype: int64
+</pre></div>
+</div>
+</div>
+</div>
+<p>Nos damos cuenta que en la variable County, que está mal escrita, está llena de datos faltantes, y al no ser relevante en el estudio, es mejor eliminarla. También la variable de tamaño hay más del 70% de nulos y en VIN hay 37% de nulos.
+Para el url de la imagen, descripción y fecha de publicación tienen muy pocos nulos, por lo que no implican un peligro en los siguientes pasos para nuestro EDA. Y las variables como id, url, y el url de la región se podrían categorizar como irrelevantes, por lo que se pueden eliminar.</p>
+<p>Para variables numéricas como el año y el odómetro hay aprox. un 0.3% a 1% de datos faltantes, por lo que será mejor imputar con la mediana de estas mismas. Para la latitud  y la longitud se presenta un porcentaje de 1.5%, por lo que también se pueden imputar con la mediana.</p>
+<p>Para las variables categóricas, como la manufactura, con un 4% de nulos, el modelo, con un 1.2% de nulos, el combustible, con un 0.7% de nulos, el título de estado, con un 2% de nulos, y la transmisión, con un 0.6% de nulos, se deben imputar con la moda. En las variables de condición, con un 41% de nulos se podría, el cilindraje, la conducción y el color de la puntura, o imputarlas con desconocido (unknown), o eliminarlas.</p>
+<p>Por ello, al haber presencia de datos faltantes en la mayoría de variables, iniciamos su tratamiento para luego verificar distribución después de imputar para analizar si no se distorsionaron los datos.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Análisis de datos faltantes&quot;</span><span class="p">)</span>
+<span class="n">total_registros</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="n">faltantes_por_columna</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">porcentaje_faltantes</span> <span class="o">=</span> <span class="p">(</span><span class="n">faltantes_por_columna</span> <span class="o">/</span> <span class="n">total_registros</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
+
+<span class="n">analisis_faltantes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;Valores_Faltantes&#39;</span><span class="p">:</span> <span class="n">faltantes_por_columna</span><span class="p">,</span>
+    <span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">:</span> <span class="n">porcentaje_faltantes</span>
+<span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">analisis_faltantes</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">variables_eliminar_faltantes</span> <span class="o">=</span> <span class="n">analisis_faltantes</span><span class="p">[</span><span class="n">analisis_faltantes</span><span class="p">[</span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">40</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">variables_imputar</span> <span class="o">=</span> <span class="n">analisis_faltantes</span><span class="p">[(</span><span class="n">analisis_faltantes</span><span class="p">[</span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> 
+                                     <span class="p">(</span><span class="n">analisis_faltantes</span><span class="p">[</span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">40</span><span class="p">)]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="n">variables_limpias</span> <span class="o">=</span> <span class="n">analisis_faltantes</span><span class="p">[</span><span class="n">analisis_faltantes</span><span class="p">[</span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Clasificación de las variables&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Podemos eliminar la variable con un porcentaje aprox. mayor a 40% de faltantes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">variables_eliminar_faltantes</span><span class="p">)</span><span class="si">}</span><span class="s2"> variables&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables_eliminar_faltantes</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   - </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">analisis_faltantes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% faltantes&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Podemos imputar la variable con un porcentaje aprox. entre 0-40% de faltantes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">variables_imputar</span><span class="p">)</span><span class="si">}</span><span class="s2"> variables&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables_imputar</span><span class="p">:</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   - </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">analisis_faltantes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% faltantes&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variables limpias con un porcentaje de 0% de faltantes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">variables_limpias</span><span class="p">)</span><span class="si">}</span><span class="s2"> variables&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   -&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">variables_limpias</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Análisis de datos faltantes
+              Valores_Faltantes  Porcentaje_Faltantes
+county                   426880            100.000000
+size                     306361             71.767476
+cylinders                177678             41.622470
+condition                174104             40.785232
+VIN                      161042             37.725356
+drive                    130567             30.586347
+paint_color              130203             30.501078
+type                      92858             21.752717
+manufacturer              17646              4.133714
+title_status               8242              1.930753
+lat                        6549              1.534155
+long                       6549              1.534155
+model                      5277              1.236179
+odometer                   4400              1.030735
+fuel                       3013              0.705819
+transmission               2556              0.598763
+year                       1205              0.282281
+description                  70              0.016398
+image_url                    68              0.015930
+posting_date                 68              0.015930
+url                           0              0.000000
+price                         0              0.000000
+state                         0              0.000000
+region_url                    0              0.000000
+region                        0              0.000000
+id                            0              0.000000
+
+
+Clasificación de las variables
+Podemos eliminar la variable con un porcentaje aprox. mayor a 40% de faltantes: 4 variables
+   - condition: 40.8% faltantes
+   - cylinders: 41.6% faltantes
+   - size: 71.8% faltantes
+   - county: 100.0% faltantes
+Podemos imputar la variable con un porcentaje aprox. entre 0-40% de faltantes: 16 variables
+   - year: 0.3% faltantes
+   - manufacturer: 4.1% faltantes
+   - model: 1.2% faltantes
+   - fuel: 0.7% faltantes
+   - odometer: 1.0% faltantes
+   - title_status: 1.9% faltantes
+   - transmission: 0.6% faltantes
+   - VIN: 37.7% faltantes
+   - drive: 30.6% faltantes
+   - type: 21.8% faltantes
+   - paint_color: 30.5% faltantes
+   - image_url: 0.0% faltantes
+   - description: 0.0% faltantes
+   - lat: 1.5% faltantes
+   - long: 1.5% faltantes
+   - posting_date: 0.0% faltantes
+Variables limpias con un porcentaje de 0% de faltantes: 6 variables
+   - id, url, region, region_url, price, state
+</pre></div>
+</div>
+</div>
+</div>
+<p>Con las variables identificadas según su porcentaje de datos faltantes, empezamos con el tratamiento:</p>
+<p>Primero, estudiamos las variables que para nuestro estudio pueden ser irrelevantes:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">identificar_variables_irrelevantes</span><span class="p">(</span><span class="n">dataset</span><span class="p">):</span>
+    <span class="n">variables_irrelevantes</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;url&#39;</span><span class="p">,</span> <span class="s1">&#39;region_url&#39;</span><span class="p">,</span> <span class="s1">&#39;image_url&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span>
+        <span class="s1">&#39;posting_date&#39;</span><span class="p">,</span> <span class="s1">&#39;VIN&#39;</span><span class="p">,</span> <span class="s1">&#39;county&#39;</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;long&#39;</span>
+    <span class="p">]</span>
+    <span class="n">variables_irrelevantes</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">variables_irrelevantes</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+    
+    <span class="k">return</span> <span class="n">variables_irrelevantes</span>
+<span class="n">variables_irrelevantes</span> <span class="o">=</span> <span class="n">identificar_variables_irrelevantes</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variables irrelevantes:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">variables_irrelevantes</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Variables irrelevantes:
+1. id
+2. url
+3. region_url
+4. image_url
+5. description
+6. posting_date
+7. VIN
+8. county
+9. lat
+10. long
+</pre></div>
+</div>
+</div>
+</div>
+<p>Ahora procedemos a sus eliminaciones:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">todas_variables_eliminar</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">variables_eliminar_faltantes</span> <span class="o">+</span> <span class="n">variables_irrelevantes</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variables a eliminar:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">todas_variables_eliminar</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Dimensiones antes de eliminar: </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">dataset_clean</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">todas_variables_eliminar</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dimensiones después de eliminar: </span><span class="si">{</span><span class="n">dataset_clean</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Variables a eliminar:
+1. url
+2. lat
+3. image_url
+4. posting_date
+5. description
+6. county
+7. cylinders
+8. condition
+9. size
+10. region_url
+11. long
+12. id
+13. VIN
+
+Dimensiones antes de eliminar: (426880, 26)
+Dimensiones después de eliminar: (426880, 13)
+</pre></div>
+</div>
+</div>
+</div>
+<p>También se encontró datos que son inválidos en el estudio, puede ser por un error de escritura.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Registros antes de filtrar: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">precios_antes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span>
+<span class="n">dataset_clean</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="p">[(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">100000</span><span class="p">)]</span>
+<span class="n">precios_despues</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Precios válidos: </span><span class="si">{</span><span class="n">precios_despues</span><span class="si">}</span><span class="s2"> registros (</span><span class="si">{</span><span class="n">precios_antes</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">precios_despues</span><span class="si">}</span><span class="s2"> eliminados)&quot;</span><span class="p">)</span>
+
+<span class="n">años_antes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span>
+<span class="n">dataset_clean</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="p">[(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1980</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">2022</span><span class="p">)]</span>
+<span class="n">años_despues</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Años válidos: </span><span class="si">{</span><span class="n">años_despues</span><span class="si">}</span><span class="s2"> registros (</span><span class="si">{</span><span class="n">años_antes</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">años_despues</span><span class="si">}</span><span class="s2"> eliminados)&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Registros después de filtrar: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Registros antes de filtrar: 373973
+Precios válidos: 373973 registros (0 eliminados)
+Años válidos: 373973 registros (0 eliminados)
+Registros después de filtrar: 373973
+</pre></div>
+</div>
+</div>
+</div>
+<p>Con estas variables eliminadas, revisamos de nuevo nuestra base:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">faltantes_despues_limpieza</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="n">porcentaje_faltantes_despues</span> <span class="o">=</span> <span class="p">(</span><span class="n">faltantes_despues_limpieza</span> <span class="o">/</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">))</span> <span class="o">*</span> <span class="mi">100</span>
+
+<span class="n">analisis_despues</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+    <span class="s1">&#39;Valores_Faltantes&#39;</span><span class="p">:</span> <span class="n">faltantes_despues_limpieza</span><span class="p">,</span>
+    <span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">:</span> <span class="n">porcentaje_faltantes_despues</span>
+<span class="p">})</span>
+
+<span class="n">variables_con_faltantes</span> <span class="o">=</span> <span class="n">analisis_despues</span><span class="p">[</span><span class="n">analisis_despues</span><span class="p">[</span><span class="s1">&#39;Valores_Faltantes&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Después de la limpieza:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">variables_con_faltantes</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Después de la limpieza:
+              Valores_Faltantes  Porcentaje_Faltantes
+drive                    112893             30.187473
+paint_color              107465             28.736032
+type                      78700             21.044300
+manufacturer              12428              3.323235
+title_status               6675              1.784888
+model                      3623              0.968787
+fuel                       2317              0.619563
+odometer                   2032              0.543355
+transmission               1744              0.466344
+</pre></div>
+</div>
+</div>
+</div>
+<p>Vemos ahora un porcentaje que no afecta la continuidad de nuestro estudio. Ahora nos vamos a identificación de variables para imputar de acuerdo a su naturaleza</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">variables_a_imputar</span> <span class="o">=</span> <span class="n">variables_con_faltantes</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+
+<span class="n">numeric_features</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="n">categorical_features</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">variables_a_imputar</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">dataset_clean</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;int64&#39;</span><span class="p">,</span> <span class="s1">&#39;float64&#39;</span><span class="p">]:</span>
+        <span class="n">numeric_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">categorical_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variables numéricas que requieren imputar con mediana:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">numeric_features</span><span class="p">:</span>
+    <span class="n">porcentaje</span> <span class="o">=</span> <span class="n">analisis_despues</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var</span><span class="p">,</span> <span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;• </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">porcentaje</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% faltantes&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variables categóricas que requieren imputar con moda:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">categorical_features</span><span class="p">:</span>
+    <span class="n">porcentaje</span> <span class="o">=</span> <span class="n">analisis_despues</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var</span><span class="p">,</span> <span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;• </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">porcentaje</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% faltantes&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Variables numéricas que requieren imputar con mediana:
+• odometer: 0.5% faltantes
+Variables categóricas que requieren imputar con moda:
+• manufacturer: 3.3% faltantes
+• model: 1.0% faltantes
+• fuel: 0.6% faltantes
+• title_status: 1.8% faltantes
+• transmission: 0.5% faltantes
+• drive: 30.2% faltantes
+• type: 21.0% faltantes
+• paint_color: 28.7% faltantes
+</pre></div>
+</div>
+</div>
+</div>
+<p>Ahora las imputamos de acuerdo a lo que requieren</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Imputación con mediana:&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">numeric_features</span><span class="p">:</span>
+    <span class="n">numeric_imputer</span> <span class="o">=</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;median&#39;</span><span class="p">)</span>
+    <span class="n">dataset_clean</span><span class="p">[</span><span class="n">numeric_features</span><span class="p">]</span> <span class="o">=</span> <span class="n">numeric_imputer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="n">numeric_features</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Imputadas: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">numeric_features</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Imputación con moda:&quot;</span><span class="p">)</span>
+<span class="k">if</span> <span class="n">categorical_features</span><span class="p">:</span>
+    <span class="n">categorical_imputer</span> <span class="o">=</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;most_frequent&#39;</span><span class="p">)</span>
+    <span class="n">dataset_clean</span><span class="p">[</span><span class="n">categorical_features</span><span class="p">]</span> <span class="o">=</span> <span class="n">categorical_imputer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="n">categorical_features</span><span class="p">])</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Imputadas: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">categorical_features</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="c1"># Verificar que no queden valores faltantes</span>
+<span class="n">faltantes_finales</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Valores faltantes restantes: </span><span class="si">{</span><span class="n">faltantes_finales</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Imputación con mediana:
+Imputadas: odometer
+Imputación con moda:
+Imputadas: manufacturer, model, fuel, title_status, transmission, drive, type, paint_color
+Valores faltantes restantes: 0
+</pre></div>
+</div>
+</div>
+</div>
+<p>Vemos cómo quedan al final:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;HighDemand&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dimensiones finales: </span><span class="si">{</span><span class="n">dataset_clean</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rango de precios: $</span><span class="si">{</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> - $</span><span class="si">{</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Años: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Distribución de HighDemand:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;HighDemand&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Porcentaje de alta demanda: </span><span class="si">{</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;HighDemand&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Dimensiones finales: (373973, 14)
+Rango de precios: $501 - $99,999
+Años: 1980 - 2022
+Distribución de HighDemand:
+HighDemand
+0    187140
+1    186833
+Name: count, dtype: int64
+Porcentaje de alta demanda: 50.0%
+</pre></div>
+</div>
+</div>
+</div>
 </section>
 
     <script type="text/x-thebe-config">
