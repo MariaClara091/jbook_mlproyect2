@@ -988,39 +988,28 @@ Para el url de la imagen, descripción y fecha de publicación tienen muy pocos 
 <p>Por ello, al haber presencia de datos faltantes en la mayoría de variables, iniciamos su tratamiento para luego verificar distribución después de imputar para analizar si no se distorsionaron los datos.</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Análisis de datos faltantes&quot;</span><span class="p">)</span>
-<span class="n">total_registros</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">total_registros</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
 <span class="n">faltantes_por_columna</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 <span class="n">porcentaje_faltantes</span> <span class="o">=</span> <span class="p">(</span><span class="n">faltantes_por_columna</span> <span class="o">/</span> <span class="n">total_registros</span><span class="p">)</span> <span class="o">*</span> <span class="mi">100</span>
-
 <span class="n">analisis_faltantes</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
     <span class="s1">&#39;Valores_Faltantes&#39;</span><span class="p">:</span> <span class="n">faltantes_por_columna</span><span class="p">,</span>
     <span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">:</span> <span class="n">porcentaje_faltantes</span>
 <span class="p">})</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Análisis de faltantes:&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">analisis_faltantes</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-
 <span class="n">variables_eliminar_faltantes</span> <span class="o">=</span> <span class="n">analisis_faltantes</span><span class="p">[</span><span class="n">analisis_faltantes</span><span class="p">[</span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">40</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 <span class="n">variables_imputar</span> <span class="o">=</span> <span class="n">analisis_faltantes</span><span class="p">[(</span><span class="n">analisis_faltantes</span><span class="p">[</span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span> <span class="o">&amp;</span> 
                                      <span class="p">(</span><span class="n">analisis_faltantes</span><span class="p">[</span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">40</span><span class="p">)]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 <span class="n">variables_limpias</span> <span class="o">=</span> <span class="n">analisis_faltantes</span><span class="p">[</span><span class="n">analisis_faltantes</span><span class="p">[</span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Clasificación de las variables&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Podemos eliminar la variable con un porcentaje aprox. mayor a 40% de faltantes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">variables_eliminar_faltantes</span><span class="p">)</span><span class="si">}</span><span class="s2"> variables&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables_eliminar_faltantes</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   - </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">analisis_faltantes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% faltantes&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Podemos imputar la variable con un porcentaje aprox. entre 0-40% de faltantes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">variables_imputar</span><span class="p">)</span><span class="si">}</span><span class="s2"> variables&quot;</span><span class="p">)</span>
-<span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">variables_imputar</span><span class="p">:</span>
-    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;   - </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">analisis_faltantes</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var</span><span class="p">,</span><span class="w"> </span><span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% faltantes&quot;</span><span class="p">)</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variables limpias con un porcentaje de 0% de faltantes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">variables_limpias</span><span class="p">)</span><span class="si">}</span><span class="s2"> variables&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;   -&quot;</span><span class="p">,</span> <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">variables_limpias</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Podemos eliminar esta (s) variables pues tiene un porcentaje aprox. mayor a 40% de faltantes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">variables_eliminar_faltantes</span><span class="p">)</span><span class="si">}</span><span class="s2"> variables&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Podemos hacer proceso de imputación con esta (s) variables pues tiene un porcentaja aprox. entre 0-40% de faltantes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">variables_imputar</span><span class="p">)</span><span class="si">}</span><span class="s2"> variables&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variables limpias pues tienen un porcentaje de 0% de faltantes: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">variables_limpias</span><span class="p">)</span><span class="si">}</span><span class="s2"> variables&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Análisis de datos faltantes
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Análisis de faltantes:
               Valores_Faltantes  Porcentaje_Faltantes
 county                   426880            100.000000
 size                     306361             71.767476
@@ -1048,33 +1037,9 @@ state                         0              0.000000
 region_url                    0              0.000000
 region                        0              0.000000
 id                            0              0.000000
-
-
-Clasificación de las variables
-Podemos eliminar la variable con un porcentaje aprox. mayor a 40% de faltantes: 4 variables
-   - condition: 40.8% faltantes
-   - cylinders: 41.6% faltantes
-   - size: 71.8% faltantes
-   - county: 100.0% faltantes
-Podemos imputar la variable con un porcentaje aprox. entre 0-40% de faltantes: 16 variables
-   - year: 0.3% faltantes
-   - manufacturer: 4.1% faltantes
-   - model: 1.2% faltantes
-   - fuel: 0.7% faltantes
-   - odometer: 1.0% faltantes
-   - title_status: 1.9% faltantes
-   - transmission: 0.6% faltantes
-   - VIN: 37.7% faltantes
-   - drive: 30.6% faltantes
-   - type: 21.8% faltantes
-   - paint_color: 30.5% faltantes
-   - image_url: 0.0% faltantes
-   - description: 0.0% faltantes
-   - lat: 1.5% faltantes
-   - long: 1.5% faltantes
-   - posting_date: 0.0% faltantes
-Variables limpias con un porcentaje de 0% de faltantes: 6 variables
-   - id, url, region, region_url, price, state
+Podemos eliminar esta (s) variables pues tiene un porcentaje aprox. mayor a 40% de faltantes: 4 variables
+Podemos hacer proceso de imputación con esta (s) variables pues tiene un porcentaja aprox. entre 0-40% de faltantes: 16 variables
+Variables limpias pues tienen un porcentaje de 0% de faltantes: 6 variables
 </pre></div>
 </div>
 </div>
@@ -1088,10 +1053,10 @@ Variables limpias con un porcentaje de 0% de faltantes: 6 variables
         <span class="s1">&#39;id&#39;</span><span class="p">,</span> <span class="s1">&#39;url&#39;</span><span class="p">,</span> <span class="s1">&#39;region_url&#39;</span><span class="p">,</span> <span class="s1">&#39;image_url&#39;</span><span class="p">,</span> <span class="s1">&#39;description&#39;</span><span class="p">,</span>
         <span class="s1">&#39;posting_date&#39;</span><span class="p">,</span> <span class="s1">&#39;VIN&#39;</span><span class="p">,</span> <span class="s1">&#39;county&#39;</span><span class="p">,</span> <span class="s1">&#39;lat&#39;</span><span class="p">,</span> <span class="s1">&#39;long&#39;</span>
     <span class="p">]</span>
-    <span class="n">variables_irrelevantes</span> <span class="o">=</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">variables_irrelevantes</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
-    
-    <span class="k">return</span> <span class="n">variables_irrelevantes</span>
+    <span class="k">return</span> <span class="p">[</span><span class="n">col</span> <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">variables_irrelevantes</span> <span class="k">if</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dataset</span><span class="o">.</span><span class="n">columns</span><span class="p">]</span>
+
 <span class="n">variables_irrelevantes</span> <span class="o">=</span> <span class="n">identificar_variables_irrelevantes</span><span class="p">(</span><span class="n">dataset</span><span class="p">)</span>
+
 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variables irrelevantes:&quot;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">variables_irrelevantes</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
@@ -1114,35 +1079,34 @@ Variables limpias con un porcentaje de 0% de faltantes: 6 variables
 </div>
 </div>
 </div>
-<p>Ahora procedemos a sus eliminaciones:</p>
+<p>Identificando hasta ahora estas variables, se escogieron por la gran cantidad de datos faltantes que tienen y su relevancia en el estudio, algunas no tienen un sentido dado al estudio de este proyecto. Por lo que procedemos a sus eliminaciones teniendo seguro que tendremos bien nuestra pase limpia y en función al objetivo que estamos buscando:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">todas_variables_eliminar</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">variables_eliminar_faltantes</span> <span class="o">+</span> <span class="n">variables_irrelevantes</span><span class="p">))</span>
-
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variables a eliminar:&quot;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">var</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">todas_variables_eliminar</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Dimensiones antes de eliminar: </span><span class="si">{</span><span class="n">dataset</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">dataset_clean</span> <span class="o">=</span> <span class="n">dataset</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="n">todas_variables_eliminar</span><span class="p">,</span> <span class="n">errors</span><span class="o">=</span><span class="s1">&#39;ignore&#39;</span><span class="p">)</span>
+
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dimensiones después de eliminar: </span><span class="si">{</span><span class="n">dataset_clean</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Variables a eliminar:
-1. url
-2. lat
-3. image_url
-4. posting_date
-5. description
-6. county
-7. cylinders
-8. condition
-9. size
-10. region_url
-11. long
-12. id
-13. VIN
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>1. size
+2. url
+3. region_url
+4. image_url
+5. condition
+6. long
+7. county
+8. id
+9. VIN
+10. cylinders
+11. lat
+12. posting_date
+13. description
 
 Dimensiones antes de eliminar: (426880, 26)
 Dimensiones después de eliminar: (426880, 13)
@@ -1150,34 +1114,34 @@ Dimensiones después de eliminar: (426880, 13)
 </div>
 </div>
 </div>
-<p>También se encontró datos que son inválidos en el estudio, puede ser por un error de escritura.</p>
+<p>También se encontró datos que son inválidos en el estudio que pudieron ser por un error de escritura pues habían valores imposibles que, en un contexto real serían exageradamente imposibles, y se encontraron en las variables de año y el precio del vehículo. Por ello vamos a filtrarlos con el rango correcto:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Registros antes de filtrar: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 <span class="n">precios_antes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span>
 <span class="n">dataset_clean</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="p">[(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="mi">500</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span> <span class="o">&lt;</span> <span class="mi">100000</span><span class="p">)]</span>
 <span class="n">precios_despues</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Precios válidos: </span><span class="si">{</span><span class="n">precios_despues</span><span class="si">}</span><span class="s2"> registros (</span><span class="si">{</span><span class="n">precios_antes</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">precios_despues</span><span class="si">}</span><span class="s2"> eliminados)&quot;</span><span class="p">)</span>
-
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;• Precios válidos: </span><span class="si">{</span><span class="n">precios_despues</span><span class="si">}</span><span class="s2"> registros (</span><span class="si">{</span><span class="n">precios_antes</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">precios_despues</span><span class="si">}</span><span class="s2"> eliminados)&quot;</span><span class="p">)</span>
 <span class="n">años_antes</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span>
 <span class="n">dataset_clean</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="p">[(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">&gt;=</span> <span class="mi">1980</span><span class="p">)</span> <span class="o">&amp;</span> <span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span> <span class="o">&lt;=</span> <span class="mi">2022</span><span class="p">)]</span>
 <span class="n">años_despues</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Años válidos: </span><span class="si">{</span><span class="n">años_despues</span><span class="si">}</span><span class="s2"> registros (</span><span class="si">{</span><span class="n">años_antes</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">años_despues</span><span class="si">}</span><span class="s2"> eliminados)&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;• Años válidos: </span><span class="si">{</span><span class="n">años_despues</span><span class="si">}</span><span class="s2"> registros (</span><span class="si">{</span><span class="n">años_antes</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="n">años_despues</span><span class="si">}</span><span class="s2"> eliminados)&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Registros después de filtrar: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Registros después de filtrar: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
 <div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Registros antes de filtrar: 426880
-Precios válidos: 383068 registros (43812 eliminados)
-Años válidos: 373973 registros (9095 eliminados)
+• Precios válidos: 383068 registros (43812 eliminados)
+• Años válidos: 373973 registros (9095 eliminados)
+
 Registros después de filtrar: 373973
 </pre></div>
 </div>
 </div>
 </div>
-<p>Con estas variables eliminadas, revisamos de nuevo nuestra base:</p>
+<p>Con estas variables eliminadas, re-analizamos nuestra base:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">faltantes_despues_limpieza</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
@@ -1214,22 +1178,20 @@ transmission               1744              0.466344
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">variables_a_imputar</span> <span class="o">=</span> <span class="n">variables_con_faltantes</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
-
 <span class="n">numeric_features</span> <span class="o">=</span> <span class="p">[]</span>
 <span class="n">categorical_features</span> <span class="o">=</span> <span class="p">[]</span>
-
 <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">variables_a_imputar</span><span class="p">:</span>
     <span class="k">if</span> <span class="n">dataset_clean</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;int64&#39;</span><span class="p">,</span> <span class="s1">&#39;float64&#39;</span><span class="p">]:</span>
         <span class="n">numeric_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="n">categorical_features</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variables numéricas que requieren imputar con mediana:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variables numéricas a imputar con mediana:&quot;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">numeric_features</span><span class="p">:</span>
     <span class="n">porcentaje</span> <span class="o">=</span> <span class="n">analisis_despues</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var</span><span class="p">,</span> <span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;• </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">porcentaje</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% faltantes&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variables categóricas que requieren imputar con moda:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variables categóricas a imputar con moda:&quot;</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">var</span> <span class="ow">in</span> <span class="n">categorical_features</span><span class="p">:</span>
     <span class="n">porcentaje</span> <span class="o">=</span> <span class="n">analisis_despues</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="n">var</span><span class="p">,</span> <span class="s1">&#39;Porcentaje_Faltantes&#39;</span><span class="p">]</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;• </span><span class="si">{</span><span class="n">var</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="n">porcentaje</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">% faltantes&quot;</span><span class="p">)</span>
@@ -1237,9 +1199,9 @@ transmission               1744              0.466344
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Variables numéricas que requieren imputar con mediana:
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Variables numéricas a imputar con mediana:
 • odometer: 0.5% faltantes
-Variables categóricas que requieren imputar con moda:
+Variables categóricas a imputar con moda:
 • manufacturer: 3.3% faltantes
 • model: 1.0% faltantes
 • fuel: 0.6% faltantes
@@ -1255,52 +1217,44 @@ Variables categóricas que requieren imputar con moda:
 <p>Ahora las imputamos de acuerdo a lo que requieren</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
-<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Imputación con mediana:&quot;</span><span class="p">)</span>
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Imputando de variables numéricas con la mediana:&quot;</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">numeric_features</span><span class="p">:</span>
     <span class="n">numeric_imputer</span> <span class="o">=</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;median&#39;</span><span class="p">)</span>
     <span class="n">dataset_clean</span><span class="p">[</span><span class="n">numeric_features</span><span class="p">]</span> <span class="o">=</span> <span class="n">numeric_imputer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="n">numeric_features</span><span class="p">])</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Imputadas: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">numeric_features</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Imputación con moda:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Imputando variables categóricas con la moda:&quot;</span><span class="p">)</span>
 <span class="k">if</span> <span class="n">categorical_features</span><span class="p">:</span>
     <span class="n">categorical_imputer</span> <span class="o">=</span> <span class="n">SimpleImputer</span><span class="p">(</span><span class="n">strategy</span><span class="o">=</span><span class="s1">&#39;most_frequent&#39;</span><span class="p">)</span>
     <span class="n">dataset_clean</span><span class="p">[</span><span class="n">categorical_features</span><span class="p">]</span> <span class="o">=</span> <span class="n">categorical_imputer</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="n">categorical_features</span><span class="p">])</span>
     <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Imputadas: </span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">categorical_features</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-
-<span class="c1"># Verificar que no queden valores faltantes</span>
 <span class="n">faltantes_finales</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="o">.</span><span class="n">isnull</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span><span class="o">.</span><span class="n">sum</span><span class="p">()</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Valores faltantes restantes: </span><span class="si">{</span><span class="n">faltantes_finales</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Imputación con mediana:
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Imputando de variables numéricas con la mediana:
 Imputadas: odometer
-Imputación con moda:
+Imputando variables categóricas con la moda:
 Imputadas: manufacturer, model, fuel, title_status, transmission, drive, type, paint_color
 Valores faltantes restantes: 0
 </pre></div>
 </div>
 </div>
 </div>
-<p>Vemos cómo quedan al final:</p>
+<p>Creamos la variable HighDemand:</p>
 <div class="cell docutils container">
 <div class="cell_input docutils container">
 <div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;HighDemand&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">())</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="nb">int</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dimensiones finales: </span><span class="si">{</span><span class="n">dataset_clean</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rango de precios: $</span><span class="si">{</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> - $</span><span class="si">{</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Años: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Distribución de HighDemand:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Distribución de valores:&quot;</span><span class="p">)</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;HighDemand&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">())</span>
 <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Porcentaje de alta demanda: </span><span class="si">{</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;HighDemand&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">*</span><span class="mi">100</span><span class="si">:</span><span class="s2">.1f</span><span class="si">}</span><span class="s2">%&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 </div>
 <div class="cell_output docutils container">
-<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Dimensiones finales: (373973, 14)
-Rango de precios: $501 - $99,999
-Años: 1980 - 2022
-Distribución de HighDemand:
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Distribución de valores:
 HighDemand
 0    187140
 1    186833
@@ -1308,6 +1262,500 @@ Name: count, dtype: int64
 Porcentaje de alta demanda: 50.0%
 </pre></div>
 </div>
+</div>
+</div>
+<p>Re-identificamos las variables categóricas para codificarlas:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">categorical_features_to_encode</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">dataset_clean</span><span class="o">.</span><span class="n">columns</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">dataset_clean</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="s1">&#39;object&#39;</span> <span class="ow">and</span> <span class="n">col</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="s1">&#39;HighDemand&#39;</span><span class="p">]:</span>
+        <span class="n">categorical_features_to_encode</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Variables categóricas:&quot;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">categorical_features_to_encode</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">n_categories</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">nunique</span><span class="p">()</span>
+    <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">. </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="n">n_categories</span><span class="si">}</span><span class="s2"> categorías)&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Variables categóricas:
+1. region (404 categorías)
+2. manufacturer (42 categorías)
+3. model (25358 categorías)
+4. fuel (5 categorías)
+5. title_status (6 categorías)
+6. transmission (3 categorías)
+7. drive (3 categorías)
+8. type (13 categorías)
+9. paint_color (12 categorías)
+10. state (51 categorías)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Vemos cómo quedan:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Dimensión: </span><span class="si">{</span><span class="n">dataset_clean</span><span class="o">.</span><span class="n">shape</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Rango de precios: $</span><span class="si">{</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2"> - $</span><span class="si">{</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">()</span><span class="si">:</span><span class="s2">,</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Años: </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">min</span><span class="p">())</span><span class="si">}</span><span class="s2"> - </span><span class="si">{</span><span class="nb">int</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">max</span><span class="p">())</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;HighDemand: </span><span class="si">{</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;HighDemand&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">to_dict</span><span class="p">()</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Variables categóricas para encoding: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">categorical_features_to_encode</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Dimensión: (373973, 14)
+Rango de precios: $501 - $99,999
+Años: 1980 - 2022
+HighDemand: {0: 187140, 1: 186833}
+Variables categóricas para encoding: 10
+</pre></div>
+</div>
+</div>
+</div>
+<p>Con esta base trata para datos faltantes, hacemos un pequeño chequeo de sus características y vemos las distribuciones de nuestros datos.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_clean</span><span class="o">.</span><span class="n">info</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>&lt;class &#39;pandas.core.frame.DataFrame&#39;&gt;
+Index: 373973 entries, 27 to 426879
+Data columns (total 14 columns):
+ #   Column        Non-Null Count   Dtype  
+---  ------        --------------   -----  
+ 0   region        373973 non-null  object 
+ 1   price         373973 non-null  int64  
+ 2   year          373973 non-null  float64
+ 3   manufacturer  373973 non-null  object 
+ 4   model         373973 non-null  object 
+ 5   fuel          373973 non-null  object 
+ 6   odometer      373973 non-null  float64
+ 7   title_status  373973 non-null  object 
+ 8   transmission  373973 non-null  object 
+ 9   drive         373973 non-null  object 
+ 10  type          373973 non-null  object 
+ 11  paint_color   373973 non-null  object 
+ 12  state         373973 non-null  object 
+ 13  HighDemand    373973 non-null  int32  
+dtypes: float64(2), int32(1), int64(1), object(10)
+memory usage: 41.4+ MB
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">dataset_clean</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>price</th>
+      <th>year</th>
+      <th>odometer</th>
+      <th>HighDemand</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>count</th>
+      <td>373973.000000</td>
+      <td>373973.000000</td>
+      <td>3.739730e+05</td>
+      <td>373973.000000</td>
+    </tr>
+    <tr>
+      <th>mean</th>
+      <td>19164.113075</td>
+      <td>2011.986020</td>
+      <td>9.748151e+04</td>
+      <td>0.499590</td>
+    </tr>
+    <tr>
+      <th>std</th>
+      <td>14277.339280</td>
+      <td>6.404836</td>
+      <td>1.440029e+05</td>
+      <td>0.500001</td>
+    </tr>
+    <tr>
+      <th>min</th>
+      <td>501.000000</td>
+      <td>1980.000000</td>
+      <td>0.000000e+00</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>25%</th>
+      <td>7900.000000</td>
+      <td>2008.000000</td>
+      <td>3.950000e+04</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>50%</th>
+      <td>15950.000000</td>
+      <td>2013.000000</td>
+      <td>8.900000e+04</td>
+      <td>0.000000</td>
+    </tr>
+    <tr>
+      <th>75%</th>
+      <td>27990.000000</td>
+      <td>2017.000000</td>
+      <td>1.370000e+05</td>
+      <td>1.000000</td>
+    </tr>
+    <tr>
+      <th>max</th>
+      <td>99999.000000</td>
+      <td>2022.000000</td>
+      <td>1.000000e+07</td>
+      <td>1.000000</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Distribución de las variables numéricas:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">numeric_cols</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;int64&#39;</span><span class="p">,</span> <span class="s1">&#39;float64&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span> 
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Distribución de variables numéricas:&quot;</span><span class="p">)</span>
+<span class="n">chunk_size</span> <span class="o">=</span> <span class="mi">30</span>
+<span class="k">for</span> <span class="n">j</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">numeric_cols</span><span class="p">),</span> <span class="n">chunk_size</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">20</span><span class="p">,</span> <span class="mi">15</span><span class="p">))</span>
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">numeric_cols</span><span class="p">[</span><span class="n">j</span><span class="p">:</span><span class="n">j</span><span class="o">+</span><span class="n">chunk_size</span><span class="p">]):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">6</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="n">col</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Distribución de variables numéricas:
+</pre></div>
+</div>
+<img alt="_images/14a9e1119a9661fe5d2fd407c8049926aa1bb609228821bb26b395ba81c5724d.png" src="_images/14a9e1119a9661fe5d2fd407c8049926aa1bb609228821bb26b395ba81c5724d.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span><span class="w"> </span><span class="nf">plot_outliers</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">,</span> <span class="n">columns</span><span class="p">):</span>
+    <span class="n">n_cols</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">columns</span><span class="p">)</span>
+    <span class="n">n_rows</span> <span class="o">=</span> <span class="p">(</span><span class="n">n_cols</span> <span class="o">+</span> <span class="mi">3</span><span class="p">)</span> <span class="o">//</span> <span class="mi">4</span>  
+    <span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">3</span> <span class="o">*</span> <span class="n">n_rows</span><span class="p">))</span>
+    
+    <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">columns</span><span class="p">):</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="n">n_rows</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">y</span><span class="o">=</span><span class="n">dataset_clean</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
+        <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;Boxplot de </span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+    
+    <span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">numeric_cols</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;int64&#39;</span><span class="p">,</span> <span class="s1">&#39;float64&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Número de columnas numéricas: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">numeric_cols</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Columnas numéricas:&quot;</span><span class="p">,</span> <span class="nb">list</span><span class="p">(</span><span class="n">numeric_cols</span><span class="p">))</span>
+<span class="n">plot_outliers</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">,</span> <span class="n">numeric_cols</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Número de columnas numéricas: 3
+Columnas numéricas: [&#39;price&#39;, &#39;year&#39;, &#39;odometer&#39;]
+</pre></div>
+</div>
+<img alt="_images/e33f49a86f61217d4acb5a757caf8050b8293f2295edb56f647973f15a08ed7d.png" src="_images/e33f49a86f61217d4acb5a757caf8050b8293f2295edb56f647973f15a08ed7d.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">scipy.stats</span><span class="w"> </span><span class="kn">import</span> <span class="n">kstest</span>
+<span class="n">numeric_cols</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="s1">&#39;int64&#39;</span><span class="p">,</span> <span class="s1">&#39;float64&#39;</span><span class="p">])</span><span class="o">.</span><span class="n">columns</span>
+<span class="n">results</span> <span class="o">=</span> <span class="p">[]</span>
+
+<span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">numeric_cols</span><span class="p">:</span>
+    <span class="n">data</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="p">[</span><span class="n">col</span><span class="p">]</span><span class="o">.</span><span class="n">dropna</span><span class="p">()</span>  
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>  
+        <span class="n">mean</span><span class="p">,</span> <span class="n">std</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">mean</span><span class="p">(),</span> <span class="n">data</span><span class="o">.</span><span class="n">std</span><span class="p">()</span>
+        <span class="n">ks_stat</span><span class="p">,</span> <span class="n">p_value</span> <span class="o">=</span> <span class="n">kstest</span><span class="p">(</span><span class="n">data</span><span class="p">,</span> <span class="s1">&#39;norm&#39;</span><span class="p">,</span> <span class="n">args</span><span class="o">=</span><span class="p">(</span><span class="n">mean</span><span class="p">,</span> <span class="n">std</span><span class="p">))</span>
+        
+        <span class="n">results</span><span class="o">.</span><span class="n">append</span><span class="p">({</span>
+            <span class="s1">&#39;Variable&#39;</span><span class="p">:</span> <span class="n">col</span><span class="p">,</span>
+            <span class="s1">&#39;N muestras&#39;</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span><span class="n">data</span><span class="p">),</span>
+            <span class="s1">&#39;KS Statistic&#39;</span><span class="p">:</span> <span class="n">ks_stat</span><span class="p">,</span>
+            <span class="s1">&#39;p-value&#39;</span><span class="p">:</span> <span class="n">p_value</span><span class="p">,</span>
+            <span class="s1">&#39;Normal (α=0.05)&#39;</span><span class="p">:</span> <span class="n">p_value</span> <span class="o">&gt;</span> <span class="mf">0.05</span>
+        <span class="p">})</span>
+<span class="n">results_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">results</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">=== Resultados KS (Datos Originales, sin Imputación) ===&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">results_df</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="n">non_normal_vars</span> <span class="o">=</span> <span class="n">results_df</span><span class="p">[</span><span class="n">results_df</span><span class="p">[</span><span class="s1">&#39;Normal (α=0.05)&#39;</span><span class="p">]</span> <span class="o">==</span> <span class="kc">False</span><span class="p">][</span><span class="s1">&#39;Variable&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">tolist</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Variables NO normales (p &lt; 0.05):&quot;</span><span class="p">,</span> <span class="n">non_normal_vars</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>=== Resultados KS (Datos Originales, sin Imputación) ===
+Variable  N muestras  KS Statistic  p-value  Normal (α=0.05)
+   price      373973      0.102130      0.0            False
+    year      373973      0.127249      0.0            False
+odometer      373973      0.249222      0.0            False
+
+Variables NO normales (p &lt; 0.05): [&#39;price&#39;, &#39;year&#39;, &#39;odometer&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<p>Al haber presencia de datos atípicos pues no tienen una distribución normal, hacemo tratamiento de estos con RobustScaler:</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">RobustScaler</span>
+<span class="n">numeric_features</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;odometer&#39;</span><span class="p">,</span> <span class="s1">&#39;price&#39;</span><span class="p">]</span>
+
+<span class="n">robust_scaler</span> <span class="o">=</span> <span class="n">RobustScaler</span><span class="p">()</span>
+<span class="n">dataset_robust</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+<span class="n">dataset_robust</span><span class="p">[</span><span class="n">numeric_features</span><span class="p">]</span> <span class="o">=</span> <span class="n">robust_scaler</span><span class="o">.</span><span class="n">fit_transform</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="n">numeric_features</span><span class="p">])</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Estadísticas con RobustScaler:&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">dataset_robust</span><span class="p">[</span><span class="n">numeric_features</span><span class="p">]</span><span class="o">.</span><span class="n">describe</span><span class="p">()</span><span class="o">.</span><span class="n">round</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">15</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">col</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">numeric_features</span><span class="p">,</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">subplot</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span>
+    <span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">dataset_robust</span><span class="p">[</span><span class="n">col</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="sa">f</span><span class="s1">&#39;</span><span class="si">{</span><span class="n">col</span><span class="si">}</span><span class="s1"> (RobustScaled)&#39;</span><span class="p">)</span>
+    <span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Valor Escalado&#39;</span><span class="p">)</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Estadísticas con RobustScaler:
+            year   odometer      price
+count  373973.00  373973.00  373973.00
+mean       -0.11       0.09       0.16
+std         0.71       1.48       0.71
+min        -3.67      -0.91      -0.77
+25%        -0.56      -0.51      -0.40
+50%         0.00       0.00       0.00
+75%         0.44       0.49       0.60
+max         1.00     101.65       4.18
+</pre></div>
+</div>
+<img alt="_images/85acee336b9e584baea9470dce9ed62aed99f020bdb35db031793b91e76e37ae.png" src="_images/85acee336b9e584baea9470dce9ed62aed99f020bdb35db031793b91e76e37ae.png" />
+</div>
+</div>
+<p>Al ser los datos de nuestro dataset no normales, vamos a analizar cuales variables tienen una diferencia significativas entre sus grupos.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">numeric_vars</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="s1">&#39;odometer&#39;</span><span class="p">,</span> <span class="s1">&#39;HighDemand&#39;</span><span class="p">]</span>
+<span class="n">correlation_matrix</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="p">[</span><span class="n">numeric_vars</span><span class="p">]</span><span class="o">.</span><span class="n">corr</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">8</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">heatmap</span><span class="p">(</span><span class="n">correlation_matrix</span><span class="p">,</span> <span class="n">annot</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">cmap</span><span class="o">=</span><span class="s1">&#39;coolwarm&#39;</span><span class="p">,</span> <span class="n">center</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+            <span class="n">square</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">fmt</span><span class="o">=</span><span class="s1">&#39;.2f&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Matriz de Correlación&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/5faef96100841098c3fd74040459d3c18d864709272b7ac7aca3451f2470ff03.png" src="_images/5faef96100841098c3fd74040459d3c18d864709272b7ac7aca3451f2470ff03.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">statsmodels.stats.outliers_influence</span><span class="w"> </span><span class="kn">import</span> <span class="n">variance_inflation_factor</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">analisis_vif_conciso</span><span class="p">(</span><span class="n">df</span><span class="p">,</span> <span class="n">target_name</span><span class="p">):</span>
+    <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="n">target_name</span><span class="p">])</span><span class="o">.</span><span class="n">select_dtypes</span><span class="p">(</span><span class="n">include</span><span class="o">=</span><span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">number</span><span class="p">])</span>
+    <span class="n">vif_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">()</span>
+    <span class="n">vif_df</span><span class="p">[</span><span class="s2">&quot;Variable&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">columns</span>
+    <span class="n">vif_df</span><span class="p">[</span><span class="s2">&quot;VIF&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span><span class="n">variance_inflation_factor</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">values</span><span class="p">,</span> <span class="n">i</span><span class="p">)</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])]</span>
+    <span class="n">vif_df</span> <span class="o">=</span> <span class="n">vif_df</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="s1">&#39;VIF&#39;</span><span class="p">,</span> <span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">vif_df</span><span class="p">[</span><span class="s2">&quot;Estado&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">vif_df</span><span class="p">[</span><span class="s2">&quot;VIF&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">apply</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> 
+        <span class="s2">&quot;Normal&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">5</span> <span class="k">else</span> <span class="s2">&quot;Moderado&quot;</span> <span class="k">if</span> <span class="n">x</span> <span class="o">&lt;</span> <span class="mi">10</span> <span class="k">else</span> <span class="s2">&quot;Alto&quot;</span><span class="p">)</span>
+    
+    <span class="k">return</span> <span class="n">vif_df</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Análisis para regresión con la variable precio&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+<span class="n">vif_regresion</span> <span class="o">=</span> <span class="n">analisis_vif_conciso</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">,</span> <span class="s2">&quot;price&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">vif_regresion</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total variables: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vif_regresion</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+ 
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Análisis para clasificación con la variable HighDemand&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-&quot;</span> <span class="o">*</span> <span class="mi">40</span><span class="p">)</span>
+<span class="n">vif_clasificacion</span> <span class="o">=</span> <span class="n">analisis_vif_conciso</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">,</span> <span class="s2">&quot;HighDemand&quot;</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">vif_clasificacion</span><span class="o">.</span><span class="n">to_string</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Total variables: </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">vif_clasificacion</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Análisis para regresión con la variable precio
+----------------------------------------
+  Variable      VIF Estado
+      year 2.918347 Normal
+HighDemand 2.137987 Normal
+  odometer 1.552845 Normal
+Total variables: 3
+Análisis para clasificación con la variable HighDemand
+----------------------------------------
+Variable      VIF Estado
+    year 3.898548 Normal
+   price 2.998180 Normal
+odometer 1.551248 Normal
+Total variables: 3
+</pre></div>
+</div>
+</div>
+</div>
+<p>Análisis univariado</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">style</span><span class="o">.</span><span class="n">use</span><span class="p">(</span><span class="s1">&#39;seaborn-v0_8&#39;</span><span class="p">)</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">set_palette</span><span class="p">(</span><span class="s2">&quot;husl&quot;</span><span class="p">)</span> 
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Distribución de Precios de Autos Usados&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Precio ($)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Frecuencia&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">axvline</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;red&#39;</span><span class="p">,</span> <span class="n">linestyle</span><span class="o">=</span><span class="s1">&#39;--&#39;</span><span class="p">,</span> 
+            <span class="n">label</span><span class="o">=</span><span class="sa">f</span><span class="s1">&#39;Mediana: $</span><span class="si">{</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s2">&quot;price&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">median</span><span class="p">()</span><span class="si">:</span><span class="s1">,.0f</span><span class="si">}</span><span class="s1">&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;year&#39;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Distribución de Años de Fabricación&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Año&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Frecuencia&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">histplot</span><span class="p">(</span><span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;odometer&#39;</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">50</span><span class="p">,</span> <span class="n">kde</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Distribución de Kilometraje&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Kilometraje&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Frecuencia&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;HighDemand&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Distribución de HighDemand&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;HighDemand&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cantidad&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/d42cd0b3de1f5b7c686cb3887e5c4b0e77fea4f6a6d03ba24f3c07f9785c3d6a.png" src="_images/d42cd0b3de1f5b7c686cb3887e5c4b0e77fea4f6a6d03ba24f3c07f9785c3d6a.png" />
+<img alt="_images/3aa71747c306390b9d97cb1f757d454165ae9e17ff9d6e3c05b5415346d4f7cc.png" src="_images/3aa71747c306390b9d97cb1f757d454165ae9e17ff9d6e3c05b5415346d4f7cc.png" />
+<img alt="_images/12cd2176b3ac7987eda47335f7469427d467d5add6f95a078c8a8d919688a0ed.png" src="_images/12cd2176b3ac7987eda47335f7469427d467d5add6f95a078c8a8d919688a0ed.png" />
+<img alt="_images/7f2a41b71227de78ef0f72da203c96d00a43a72580e4a429880b19a50bddf717.png" src="_images/7f2a41b71227de78ef0f72da203c96d00a43a72580e4a429880b19a50bddf717.png" />
+</div>
+</div>
+<p>Análisis bivariado</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dataset_clean</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;year&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Precio vs Año de Fabricación&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Año&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Precio ($)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">scatterplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dataset_clean</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;odometer&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;price&#39;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.6</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Precio vs Kilometraje&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Kilometraje&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Precio ($)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dataset_clean</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;fuel&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;price&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Precio por Tipo de Combustible&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Tipo de Combustible&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Precio ($)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">sns</span><span class="o">.</span><span class="n">boxplot</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">dataset_clean</span><span class="p">,</span> <span class="n">x</span><span class="o">=</span><span class="s1">&#39;transmission&#39;</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="s1">&#39;price&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Precio por Tipo de Transmisión&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Transmisión&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Precio ($)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/b8ad2dbda5900ba5a02802bef95eabb6a91361802411e3a74121bf4a243a57e5.png" src="_images/b8ad2dbda5900ba5a02802bef95eabb6a91361802411e3a74121bf4a243a57e5.png" />
+<img alt="_images/b7ea6e1d1583188718cee127deb72a5af845440aea61951c7967f656980d4f53.png" src="_images/b7ea6e1d1583188718cee127deb72a5af845440aea61951c7967f656980d4f53.png" />
+<img alt="_images/775d31f95b03fc5b65d86f390af2b3e01bc3743abb953a09522bab17e393c07a.png" src="_images/775d31f95b03fc5b65d86f390af2b3e01bc3743abb953a09522bab17e393c07a.png" />
+<img alt="_images/07b2db7c59a016ecaeaa6508f3ce9e2b4200be27618d9c1a1f662b1f401ca605.png" src="_images/07b2db7c59a016ecaeaa6508f3ce9e2b4200be27618d9c1a1f662b1f401ca605.png" />
+</div>
+</div>
+<p>Análisis de tops</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">top_10_brands</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;manufacturer&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">top_10_brands</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Top 10 Marcas Más Comunes&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Marca&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cantidad de Autos&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">price_by_brand</span> <span class="o">=</span> <span class="n">dataset_clean</span><span class="o">.</span><span class="n">groupby</span><span class="p">(</span><span class="s1">&#39;manufacturer&#39;</span><span class="p">)[</span><span class="s1">&#39;price&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">mean</span><span class="p">()</span><span class="o">.</span><span class="n">sort_values</span><span class="p">(</span><span class="n">ascending</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span>
+<span class="n">price_by_brand</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Top 10 de Precio Promedio por Marca&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Marca&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Precio Promedio ($)&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">12</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="n">dataset_clean</span><span class="p">[</span><span class="s1">&#39;type&#39;</span><span class="p">]</span><span class="o">.</span><span class="n">value_counts</span><span class="p">()</span><span class="o">.</span><span class="n">head</span><span class="p">(</span><span class="mi">8</span><span class="p">)</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">kind</span><span class="o">=</span><span class="s1">&#39;bar&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s1">&#39;Tipos de Vehículo Más Comunes&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s1">&#39;Tipo de Vehículo&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s1">&#39;Cantidad&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xticks</span><span class="p">(</span><span class="n">rotation</span><span class="o">=</span><span class="mi">45</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="_images/2ea4c70ce2d26c900724b41029ee4e3dbafaebb337e45c41aa7b09fe19c3f377.png" src="_images/2ea4c70ce2d26c900724b41029ee4e3dbafaebb337e45c41aa7b09fe19c3f377.png" />
+<img alt="_images/19e1f793c1e6fd7be43eaac43f887f8c54203e6c1171b4e942af56c918d30898.png" src="_images/19e1f793c1e6fd7be43eaac43f887f8c54203e6c1171b4e942af56c918d30898.png" />
+<img alt="_images/2f7fd8ac195dfe030a2edf420fad0d609921c3c227206b40491bf71f258d4594.png" src="_images/2f7fd8ac195dfe030a2edf420fad0d609921c3c227206b40491bf71f258d4594.png" />
 </div>
 </div>
 </section>
